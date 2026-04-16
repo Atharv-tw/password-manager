@@ -6,7 +6,6 @@ import security.HashingUtil;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 
 public class LoginUI extends JFrame {
     private DataManager dataManager;
@@ -17,53 +16,57 @@ public class LoginUI extends JFrame {
         isFirstTime = dataManager.isFirstTimeUser();
 
         setTitle("Vault Login");
-        setSize(450, 400);
+        setSize(480, 500);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setResizable(false);
         getContentPane().setBackground(Theme.BG_MAIN);
         
+        Theme.setupTheme(); // Ensure theme applies
         initUI();
     }
 
     private void initUI() {
-        JPanel mainPanel = new JPanel();
-        mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.Y_AXIS));
-        mainPanel.setBackground(Theme.BG_MAIN);
-        mainPanel.setBorder(new EmptyBorder(40, 50, 40, 50));
-
+        JPanel wrapper = new JPanel(new GridBagLayout());
+        wrapper.setBackground(Theme.BG_MAIN);
+        
+        // Card Panel (White box with padding)
+        JPanel card = new JPanel();
+        card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
+        card.setBackground(Theme.BG_PANEL);
+        card.setBorder(new EmptyBorder(50, 50, 50, 50));
+        
         // Header Icon & Title
-        JLabel iconLabel = new JLabel("🛡️", SwingConstants.CENTER);
-        iconLabel.setFont(new Font("Segoe UI", Font.PLAIN, 48));
+        JLabel iconLabel = new JLabel("🔐", SwingConstants.CENTER);
+        iconLabel.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 64));
         iconLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         
-        JLabel headerLabel = new JLabel(isFirstTime ? "Create Master Password" : "Login to Your Vault");
+        JLabel headerLabel = new JLabel(isFirstTime ? "Welcome to Vault" : "Welcome Back!");
         headerLabel.setFont(Theme.FONT_XL_BOLD);
         headerLabel.setForeground(Theme.TEXT_PRIMARY);
         headerLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel subLabel = new JLabel(isFirstTime ? "Secure your passwords forever." : "Enter your master password to continue.");
+        JLabel subLabel = new JLabel(isFirstTime ? "Create a master password" : "Enter master password to unlock");
         subLabel.setFont(Theme.FONT_REGULAR);
         subLabel.setForeground(Theme.TEXT_MUTED);
         subLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         // Input
         JPasswordField passwordField = new JPasswordField(20);
-        passwordField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
+        passwordField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
         Theme.styleTextField(passwordField);
 
         // Login Button
-        JButton actionButton = new JButton(isFirstTime ? "Initialize Vault" : "Unlock Vault");
+        JButton actionButton = Theme.createButton(isFirstTime ? "Initialize Vault" : "Unlock Vault", Theme.PRIMARY, Theme.PRIMARY_HOVER, Color.WHITE);
         actionButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        actionButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 45));
-        Theme.styleButton(actionButton, Theme.ACCENT, Theme.ACCENT_HOVER, Color.WHITE);
+        actionButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 50));
         
         JLabel errorLabel = new JLabel(" ");
         errorLabel.setForeground(Theme.DANGER);
-        errorLabel.setFont(Theme.FONT_REGULAR);
+        errorLabel.setFont(Theme.FONT_BOLD);
         errorLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        actionButton.addActionListener((ActionEvent e) -> {
+        actionButton.addActionListener(e -> {
             String pwd = new String(passwordField.getPassword());
             if (pwd.trim().isEmpty()) {
                 errorLabel.setText("Password cannot be empty.");
@@ -82,25 +85,26 @@ public class LoginUI extends JFrame {
                     }
                 }
             } catch (Exception ex) {
-                errorLabel.setText("Error occurred accessing vault.");
+                errorLabel.setText("Error accessing vault.");
             }
         });
 
         this.getRootPane().setDefaultButton(actionButton);
 
-        mainPanel.add(iconLabel);
-        mainPanel.add(Box.createVerticalStrut(10));
-        mainPanel.add(headerLabel);
-        mainPanel.add(Box.createVerticalStrut(5));
-        mainPanel.add(subLabel);
-        mainPanel.add(Box.createVerticalStrut(30));
-        mainPanel.add(passwordField);
-        mainPanel.add(Box.createVerticalStrut(20));
-        mainPanel.add(actionButton);
-        mainPanel.add(Box.createVerticalStrut(15));
-        mainPanel.add(errorLabel);
+        card.add(iconLabel);
+        card.add(Box.createVerticalStrut(15));
+        card.add(headerLabel);
+        card.add(Box.createVerticalStrut(5));
+        card.add(subLabel);
+        card.add(Box.createVerticalStrut(40));
+        card.add(passwordField);
+        card.add(Box.createVerticalStrut(25));
+        card.add(actionButton);
+        card.add(Box.createVerticalStrut(15));
+        card.add(errorLabel);
 
-        add(mainPanel);
+        wrapper.add(card);
+        add(wrapper);
     }
 
     private void openDashboard(String masterPassword) {
